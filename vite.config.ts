@@ -46,6 +46,8 @@ export default defineConfig(({ mode }) => {
           workbox: {
             globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
             navigateFallback: 'index.html',
+            // Plik APK i strona pobierania muszą iść z sieci, a nie zostać zastąpione aplikacją.
+            navigateFallbackDenylist: [/\/apk\/?$/, /\.apk$/],
             cleanupOutdatedCaches: true,
           },
         }),

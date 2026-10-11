@@ -10,3 +10,6 @@ keystore/
 *.p12
 *.jks
 *.keystore
+
+# Gotowe pliki APK (publikowane w Releases)
+*.apk

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pobierz AlcoCalc na Androida</title>
+    <meta name="description" content="Plik APK aplikacji AlcoCalc na Androida." />
+    <meta name="theme-color" content="#FAF8F4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12110F" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="../icons/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #faf8f4;
+        --surface: #ffffff;
+        --border: #e6dfd3;
+        --text: #1e1f22;
+        --muted: #5d5850;
+        --amber: #e8a027;
+        --on-amber: #2a1a00;
+        --note: #fff3dc;
+        --note-text: #6e4300;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #12110f;
+          --surface: #1c1a17;
+          --border: #36322b;
+          --text: #efebe4;
+          --muted: #b0a99e;
+          --amber: #eba73a;
+          --on-amber: #1e1300;
+          --note: #2c2214;
+          --note-text: #f3d39a;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      main {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 32px 16px 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      header {
+        text-align: center;
+      }
+      header img {
+        border-radius: 22px;
+      }
+      h1 {
+        margin: 8px 0 0;
+        font-size: 1.75rem;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 4px 0 0;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 60px;
+        padding: 0 20px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-weight: 700;
+        font-size: 1.125rem;
+        text-decoration: none;
+      }
+      .btn.primary {
+        background: var(--amber);
+        border-color: var(--amber);
+        color: var(--on-amber);
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px 18px;
+      }
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+      }
+      ol {
+        margin: 0;
+        padding-left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .note {
+        background: var(--note);
+        color: var(--note-text);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 0.9375rem;
+      }
+      .small {
+        font-size: 0.875rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      a {
+        color: inherit;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="../icons/icon-192.png" alt="" width="88" height="88" />
+        <h1>AlcoCalc</h1>
+        <p class="sub">Aplikacja na Androida (plik APK, ok. 3,4 MB)</p>
+      </header>
+
+      <a class="btn primary" href="../AlcoCalc.apk" download="AlcoCalc.apk">Pobierz AlcoCalc.apk</a>
+
+      <div class="note" id="inapp" hidden>
+        Ta strona jest otwarta w okienku innej aplikacji, a tam pobieranie plików APK często zatrzymuje się na 100%.
+        Otwórz ją w aplikacji Chrome:
+      </div>
+      <a class="btn" id="chrome" href="#" hidden>Otwórz w Chrome</a>
+
+      <section class="card">
+        <h2>Instalacja</h2>
+        <ol>
+          <li>Tapnij <strong>Pobierz AlcoCalc.apk</strong>. Jeśli Chrome zapyta, czy pobrać plik, wybierz <strong>Pobierz mimo to</strong>.</li>
+          <li>Po pobraniu tapnij <strong>Otwórz</strong> (albo znajdź plik w <strong>Pliki → Pobrane</strong>).</li>
+          <li>Zezwól na instalację z tego źródła, gdy telefon o to poprosi.</li>
+          <li>Na Xiaomi/Redmi przy skanowaniu wybierz <strong>Kontynuuj instalację</strong>, potem <strong>Zainstaluj</strong>.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>Pobieranie stoi na 100%?</h2>
+        <p style="margin: 0">
+          Otwórz tę stronę w zwykłej aplikacji <strong>Chrome</strong> (nie w okienku Messengera, GitHuba itp.) i spróbuj
+          ponownie. Jeśli to nie pomoże: Chrome → <strong>⋮ → Pobrane</strong> i sprawdź, czy plik nie czeka tam na
+          potwierdzenie.
+        </p>
+      </section>
+
+      <p class="small">Nowsze wersje instalujesz tak samo, jako aktualizację. Dane w aplikacji zostają.</p>
+      <p class="small"><a href="../">Wersja w przeglądarce</a></p>
+    </main>
+    <script>
+      (function () {
+        var ua = navigator.userAgent;
+        if (!/Android/i.test(ua)) return;
+        // Okienka przeglądarki wbudowane w aplikacje (Messenger, Facebook, Instagram, WebView).
+        var inApp = /FBAN|FBAV|FB_IAB|Instagram|Messenger|; wv\)/i.test(ua);
+        var url = location.href.replace(/^https?:\/\//, '').split('#')[0];
+        var chrome = document.getElementById('chrome');
+        chrome.href = 'intent://' + url + '#Intent;scheme=https;package=com.android.chrome;end';
+        chrome.hidden = false;
+        if (inApp) document.getElementById('inapp').hidden = false;
+      })();
+    </script>
+  </body>
+</html>

@@ -4,7 +4,7 @@ Aplikacja do świadomego picia (Android APK i PWA). Przelicza alkohol na Twoje w
 
 Wszystkie dane zostają w telefonie (IndexedDB). Nie ma konta ani serwera.
 
-- **Android (APK):** https://github.com/Fiboczinajdid/AlcoCalc/releases/latest/download/AlcoCalc.apk
+- **Android (APK):** https://fiboczinajdid.github.io/AlcoCalc/apk/
 - **Wersja w przeglądarce (także iPhone):** https://fiboczinajdid.github.io/AlcoCalc/
 
 > **Ważne:** szacunki promili to wyłącznie przybliżenie. Ludzie spalają alkohol nawet dwukrotnie różnie szybko. Przed jazdą zawsze sprawdź się alkomatem.
@@ -16,7 +16,7 @@ Wszystkie dane zostają w telefonie (IndexedDB). Nie ma konta ani serwera.
 - Zapis lokalny przez [`idb`](https://github.com/jakearchibald/idb) (~1 kB).
 - PWA przez `vite-plugin-pwa` (manifest i service worker Workbox, pełne działanie offline).
 - Wykresy rysowane własnym kodem SVG, bez bibliotek.
-- APK na Androida przez [Capacitor](https://capacitorjs.com) 7. Budowa i podpis odbywają się w GitHub Actions ([`.github/workflows/android.yml`](.github/workflows/android.yml)), a gotowy plik trafia do Releases.
+- APK na Androida przez [Capacitor](https://capacitorjs.com) 7. Budowa i podpis odbywają się w GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)), a gotowy plik trafia na stronę aplikacji (`/AlcoCalc.apk`) i do Releases.
 
 ## Struktura
 
@@ -69,12 +69,12 @@ npm run build:android  # wersja do APK + kopiowanie do projektu Androida
 ## Instalacja na telefonie
 
 ### Android – plik APK (zalecane)
-1. Na telefonie otwórz https://github.com/Fiboczinajdid/AlcoCalc/releases/latest/download/AlcoCalc.apk. Pobierze się plik `AlcoCalc.apk`.
+1. Na telefonie otwórz w **Chrome** https://fiboczinajdid.github.io/AlcoCalc/apk/ i tapnij **Pobierz AlcoCalc.apk**. Jeśli Chrome zapyta, wybierz **Pobierz mimo to**.
 2. Otwórz pobrany plik (z powiadomienia albo z aplikacji **Pliki → Pobrane**).
 3. Jeśli telefon zapyta, zezwól na instalację z tego źródła (**Ustawienia → Zezwalaj z tego źródła**). Na Xiaomi/Redmi może też pojawić się skanowanie zabezpieczeń – wybierz **Kontynuuj instalację**.
 4. Tapnij **Zainstaluj**. Ikona AlcoCalc pojawi się na pulpicie.
 
-Nową wersję instalujesz tak samo – z tego samego linku. Instaluje się jako aktualizacja, dane zostają.
+Nową wersję instalujesz tak samo, z tego samego linku. Instaluje się jako aktualizacja, dane zostają.
 
 ### Android – z przeglądarki Chrome (bez APK)
 1. Otwórz https://fiboczinajdid.github.io/AlcoCalc/ w **Chrome**.

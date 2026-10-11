@@ -1,4 +1,7 @@
-name: Deploy to GitHub Pages
+name: Build and deploy
+
+# Jeden przebieg buduje APK i stronę, kładzie APK na GitHub Pages (stały adres bez przekierowań)
+# i dodatkowo publikuje je w Releases.
 
 on:
   push:
@@ -6,32 +9,82 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.1.${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
       - run: npm ci
       - run: npm test
+
+      # --- APK ---
+      - run: npm run build:android
+
+      - name: Klucz podpisu z sekretów
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/alcocalc-release.p12"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/alcocalc-release.p12" >> "$GITHUB_ENV"
+
+      - name: Build APK
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Sprawdź podpis
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs "$APK" | head -2
+          cp "$APK" "$RUNNER_TEMP/AlcoCalc.apk"
+          rm -f "$RUNNER_TEMP/alcocalc-release.p12"
+
+      # --- strona (PWA) + APK pod https://<login>.github.io/<repo>/AlcoCalc.apk ---
       - run: npm run build
         env:
-          # Aplikacja działa pod https://<użytkownik>.github.io/<repozytorium>/
           BASE: /${{ github.event.repository.name }}/
+      - run: cp "$RUNNER_TEMP/AlcoCalc.apk" dist/AlcoCalc.apk
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+      - name: Publikacja w Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp "$RUNNER_TEMP/AlcoCalc.apk" AlcoCalc.apk
+          gh release create "v$VERSION_NAME" AlcoCalc.apk \
+            --target "$GITHUB_SHA" \
+            --title "AlcoCalc $VERSION_NAME (Android)" \
+            --notes "Pobieranie na telefonie: https://fiboczinajdid.github.io/AlcoCalc/apk/" \
+            --latest
 
   deploy:
     needs: build
