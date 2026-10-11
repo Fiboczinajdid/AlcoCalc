@@ -66,7 +66,6 @@
             </button>
           {/each}
         </div>
-        <p class="hint">Tapnij jednostkę, żeby pokazywać w niej licznik.</p>
       {/if}
     {/if}
   </section>
@@ -94,7 +93,7 @@
     {#if drinks.length}
       <DrinkList {drinks} onedit={(d) => (sheet = { kind: 'edit', drink: d })} />
     {:else}
-      <p class="muted">Na razie nic nie dodano.</p>
+      <p class="muted">Brak napojów.</p>
     {/if}
   </section>
 
@@ -154,9 +153,6 @@
     margin-top: 16px;
   }
 
-  .hero .hint {
-    margin-top: 8px;
-  }
 
   .action {
     justify-content: flex-start;

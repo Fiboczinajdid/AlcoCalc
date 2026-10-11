@@ -140,18 +140,17 @@
           </select>
         </div>
       </div>
-      <p class="hint">W Polsce 0,2‰ (stan po użyciu alkoholu).</p>
       {#if showErrors && !limitOk}<p class="error-text">Podaj limit między 0 a 1‰.</p>{/if}
       <div class="grid-2">
         <div class="field">
-          <label for="st-rate">Stawka godzinowa (opcj.)</label>
+          <label for="st-rate">Stawka za godzinę pracy</label>
           <div class="input-suffix">
             <input id="st-rate" class="input num" inputmode="decimal" bind:value={rate} placeholder="—" />
             <span>/h</span>
           </div>
         </div>
         <div class="field">
-          <label for="st-day">Nowy dzień od</label>
+          <label for="st-day">Nowy dzień od godz.</label>
           <select id="st-day" class="input" bind:value={dayStart}>
             {#each Array.from({ length: 13 }, (_, i) => i) as h (h)}
               <option value={h}>{h}:00{h === 0 ? ' (północ)' : ''}</option>
@@ -159,7 +158,6 @@
           </select>
         </div>
       </div>
-      <p class="hint">Stawka służy tylko do pokazania kosztu w godzinach pracy. Napoje po północy, a przed tą godziną liczą się do poprzedniego wieczoru.</p>
       {#if showErrors && !rateOk}<p class="error-text">Stawka musi być liczbą.</p>{/if}
       <button type="submit" class="btn btn-primary btn-block">Zapisz profil</button>
     </form>
@@ -186,18 +184,14 @@
         </li>
       {/each}
     </ul>
-    <p class="hint">Zaznaczona jednostka to ta, w której pokazuje się główny licznik.</p>
     <button class="btn btn-outline btn-block add" onclick={() => (unitSheet = { unit: null })}>
       <Icon name="plus" /> Dodaj jednostkę
     </button>
   </section>
 
   <section class="card" aria-labelledby="data-title">
-    <h2 class="card-title" id="data-title"><Icon name="shield" /> Dane i prywatność</h2>
-    <p class="small muted">
-      Wszystko jest zapisane tylko w tym telefonie (IndexedDB). Nie ma konta ani serwera. Usunięcie aplikacji lub
-      wyczyszczenie danych przeglądarki kasuje historię, więc rób kopię co jakiś czas.
-    </p>
+    <h2 class="card-title" id="data-title"><Icon name="shield" /> Dane</h2>
+    <p class="small muted">Dane są tylko w tym telefonie. Rób kopię co jakiś czas.</p>
     <div class="stack data-btns">
       <button class="btn btn-outline btn-block" onclick={exportData}><Icon name="download" /> Eksportuj kopię (JSON)</button>
       <button class="btn btn-outline btn-block" onclick={() => fileInput.click()}><Icon name="upload" /> Importuj kopię</button>
@@ -207,18 +201,7 @@
     </div>
   </section>
 
-  <section class="card about" aria-labelledby="about-title">
-    <h2 class="card-title" id="about-title"><Icon name="info" /> O obliczeniach</h2>
-    <ul class="small muted">
-      <li>Czysty alkohol = objętość × moc. Gęstość etanolu 0,789 g/ml, ok. 7 kcal na gram.</li>
-      <li>
-        Promile: wzór Widmarka (r ≈ 0,7 dla mężczyzn, 0,6 dla kobiet) albo wzór Watsona, gdy podasz wzrost i wiek.
-        Wchłanianie trwa ok. 45 min, a po jedzeniu ok. 90 min. Spalanie liczymy w dwóch wariantach: 0,15 i 0,10‰/h.
-      </li>
-      <li>To szacunki, a nie pomiar. Nie są poradą medyczną ani prawną. Przed jazdą zawsze sprawdź się alkomatem.</li>
-    </ul>
-    <p class="small muted">AlcoCalc {__APP_VERSION__}</p>
-  </section>
+  <p class="small muted version">AlcoCalc {__APP_VERSION__}</p>
 </div>
 
 {#if unitSheet}
@@ -290,11 +273,7 @@
     margin-top: 12px;
   }
 
-  .about ul {
-    margin: 0 0 10px;
-    padding-left: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  .version {
+    text-align: center;
   }
 </style>

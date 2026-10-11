@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { suggestedWaterGlasses, servingsCount } from './water';
+import { suggestedWaterMl, servingsCount } from './water';
 import { nightSummary, workHours } from './cost';
 import { computeStreaks } from './streaks';
 import { aggregateDays, drinkDaySet, hourHeatmap, monthlyStats, weeklyStats } from './stats';
@@ -18,9 +18,9 @@ const d = (time: Date, extra: Partial<Drink> = {}): Drink => ({
 });
 
 describe('woda', () => {
-  it('szklanka do każdego napoju + jedna przed snem', () => {
-    expect(suggestedWaterGlasses(0)).toBe(0);
-    expect(suggestedWaterGlasses(3)).toBe(4);
+  it('250 ml do każdego napoju + 250 ml przed snem', () => {
+    expect(suggestedWaterMl(0)).toBe(0);
+    expect(suggestedWaterMl(3)).toBe(1000);
     expect(servingsCount([{ count: 2 }, { count: 3 }])).toBe(5);
   });
 });
@@ -79,7 +79,7 @@ describe('statystyki', () => {
     {
       '2026-10-09': {
         date: '2026-10-09',
-        waterGlasses: 0,
+        waterMl: 0,
         ate: false,
         extras: [{ id: 'a', label: 'Taxi', amount: 20 }],
       },
@@ -126,7 +126,11 @@ describe('kopia danych', () => {
       profile: { weightKg: 80, sex: 'm', activeUnitId: 'zzz' },
       units: [{ id: 'u1', name: 'Piwo', volumeMl: 500, abv: 5 }],
       drinks: [{ id: 'd1', volumeMl: 500, abv: 5, time: 1 }, { bad: true }],
+      days: [{ date: '2026-10-10', waterGlasses: 3 }],
+      presets: [{ id: 'p1', name: 'Kraft', volumeMl: 400, abv: 8 }],
     });
+    expect(b.days[0].waterMl).toBe(750);
+    expect(b.presets[0].price).toBeNull();
     expect(b.drinks).toHaveLength(1);
     expect(b.drinks[0].count).toBe(1);
     expect(b.profile!.activeUnitId).toBe('u1');

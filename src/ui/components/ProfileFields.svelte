@@ -32,7 +32,7 @@
 
 <div class="stack">
   <div class="field">
-    <span class="label" id="pf-sex">Płeć (do wzoru Widmarka)</span>
+    <span class="label" id="pf-sex">Płeć</span>
     <div class="segmented" role="group" aria-labelledby="pf-sex">
       <button type="button" aria-pressed={draft.sex === 'm'} onclick={() => (draft.sex = 'm')}>Mężczyzna</button>
       <button type="button" aria-pressed={draft.sex === 'f'} onclick={() => (draft.sex = 'f')}>Kobieta</button>
@@ -63,5 +63,4 @@
       </div>
     </div>
   </div>
-  <p class="hint">Gdy podasz wzrost i wiek, szacunek użyje dokładniejszego wzoru Watsona (woda w organizmie).</p>
 </div>

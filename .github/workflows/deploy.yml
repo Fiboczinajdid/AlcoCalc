@@ -1,7 +1,9 @@
 name: Build and deploy
 
-# Jeden przebieg buduje APK i stronę, kładzie APK na GitHub Pages (stały adres bez przekierowań)
-# i dodatkowo publikuje je w Releases.
+# Jeden przebieg buduje APK, paczkę OTA i stronę. Na GitHub Pages trafiają:
+#   /AlcoCalc.apk            – APK (stały adres bez przekierowań)
+#   /ota/latest.json + .zip  – aktualizacja OTA dla zainstalowanych APK
+# APK jest też publikowane w Releases.
 
 on:
   push:
@@ -20,11 +22,20 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      VERSION_CODE: ${{ github.run_number }}
-      VERSION_NAME: 1.1.${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
+
+      # Wersja: 1.<poziom części natywnej>.<numer buildu>. Poziom podbijamy w android/NATIVE_LEVEL,
+      # gdy zmienia się coś, czego OTA nie dowiezie (pluginy, ikona, ustawienia Androida).
+      - name: Wersja
+        run: |
+          LEVEL=$(tr -dc '0-9' < android/NATIVE_LEVEL)
+          VERSION="1.$LEVEL.${{ github.run_number }}"
+          echo "NATIVE_LEVEL=$LEVEL" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=$VERSION" >> "$GITHUB_ENV"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "Wersja $VERSION"
 
       - uses: actions/setup-node@v4
         with:
@@ -40,8 +51,13 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      # --- APK ---
+      # --- APK + paczka OTA (ta sama wersja webowa) ---
       - run: npm run build:android
+
+      - name: Paczka OTA
+        run: |
+          (cd dist && zip -qr "$RUNNER_TEMP/ota.zip" .)
+          echo "OTA_SHA256=$(sha256sum "$RUNNER_TEMP/ota.zip" | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       - name: Klucz podpisu z sekretów
         run: |
@@ -69,7 +85,21 @@ jobs:
       - run: npm run build
         env:
           BASE: /${{ github.event.repository.name }}/
-      - run: cp "$RUNNER_TEMP/AlcoCalc.apk" dist/AlcoCalc.apk
+      - name: APK i OTA na stronę
+        run: |
+          cp "$RUNNER_TEMP/AlcoCalc.apk" dist/AlcoCalc.apk
+          mkdir -p dist/ota
+          cp "$RUNNER_TEMP/ota.zip" "dist/ota/$VERSION_NAME.zip"
+          PAGES="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          cat > dist/ota/latest.json <<JSON
+          {
+            "version": "$VERSION_NAME",
+            "nativeLevel": $NATIVE_LEVEL,
+            "bundle": "$PAGES/ota/$VERSION_NAME.zip",
+            "checksum": "$OTA_SHA256"
+          }
+          JSON
+          cat dist/ota/latest.json
 
       - uses: actions/upload-pages-artifact@v3
         with:

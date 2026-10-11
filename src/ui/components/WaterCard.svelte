@@ -1,86 +1,77 @@
 <script lang="ts">
   import { app } from '../../state/app.svelte';
-  import { GLASS_ML, suggestedWaterGlasses } from '../../logic';
-  import { fmtVolume, plural } from '../format';
+  import { suggestedWaterMl } from '../../logic';
+  import { fmtVolume, parseNum } from '../format';
   import Icon from './Icon.svelte';
 
   let { dayKey, servings }: { dayKey: string; servings: number } = $props();
 
-  const drunk = $derived(app.day(dayKey).waterGlasses);
-  const suggested = $derived(suggestedWaterGlasses(servings));
+  const drunk = $derived(app.day(dayKey).waterMl);
+  const suggested = $derived(suggestedWaterMl(servings));
   const pct = $derived(suggested > 0 ? Math.min(100, (drunk / suggested) * 100) : drunk > 0 ? 100 : 0);
 
-  function change(delta: number) {
-    app.updateDay(dayKey, { waterGlasses: Math.max(0, drunk + delta) });
+  let amount = $state('');
+  const ml = $derived(parseNum(amount));
+  const ok = $derived(ml !== null && ml > 0 && ml <= 5000);
+
+  function change(sign: 1 | -1) {
+    if (!ok) return;
+    app.updateDay(dayKey, { waterMl: Math.max(0, Math.round(drunk + sign * ml!)) });
+    amount = '';
   }
 </script>
 
 <section class="card" aria-labelledby="water-title">
   <h2 class="card-title" id="water-title"><Icon name="drop" /> Woda</h2>
 
-  <div class="spread">
-    <div>
-      <div class="count num"><strong>{drunk}</strong>{#if suggested}&nbsp;/&nbsp;{suggested}{/if}&nbsp;<span>{plural(suggested || drunk, 'szklanka', 'szklanki', 'szklanek')}</span></div>
-      <div class="muted small num">
-        {fmtVolume(drunk * GLASS_ML)} wypite
-        {#if suggested}· sugerowane {fmtVolume(suggested * GLASS_ML)}{/if}
-      </div>
-    </div>
-    <div class="row">
-      <button class="icon-btn minus" onclick={() => change(-1)} disabled={drunk === 0} aria-label="Odejmij szklankę">
-        <Icon name="minus" />
-      </button>
-      <button class="btn btn-primary" onclick={() => change(1)}><Icon name="plus" /> Szklanka</button>
-    </div>
+  <div class="total num">
+    <strong>{fmtVolume(drunk)}</strong>
+    {#if suggested}<span> / {fmtVolume(suggested)}</span>{/if}
   </div>
-
   <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax={suggested || 1} aria-valuenow={drunk} aria-label="Wypita woda">
     <div class="fill" style="width:{pct}%"></div>
   </div>
-  <p class="hint">
-    {#if suggested}
-      Sugestia: szklanka wody (ok. 250 ml) do każdego napoju i jedna przed snem.
-    {:else}
-      Gdy pijesz alkohol, sugerujemy szklankę wody do każdego napoju i jedną przed snem.
-    {/if}
-  </p>
+
+  <form
+    class="add"
+    onsubmit={(e) => {
+      e.preventDefault();
+      change(1);
+    }}
+  >
+    <div class="input-suffix">
+      <input class="input num" inputmode="numeric" bind:value={amount} placeholder="np. 330" aria-label="Ilość wody w ml" />
+      <span>ml</span>
+    </div>
+    <button type="button" class="icon-btn minus" onclick={() => change(-1)} disabled={!ok || drunk === 0} aria-label="Odejmij">
+      <Icon name="minus" />
+    </button>
+    <button type="submit" class="btn btn-primary" disabled={!ok}><Icon name="plus" /> Dodaj</button>
+  </form>
 
   <details>
-    <summary>Kac – co realnie pomaga</summary>
-    <div class="note" role="note">
-      <Icon name="info" size={18} />
-      <span>
-        Nie da się całkowicie uniknąć kaca. Jedynym pewnym czynnikiem jest ilość wypitego alkoholu. Poniższe wskazówki
-        mogą najwyżej trochę złagodzić samopoczucie. To nie są porady medyczne.
-      </span>
-    </div>
+    <summary>Kac</summary>
     <ul class="tips">
-      <li><strong>Jedzenie</strong> przed piciem i w trakcie spowalnia wchłanianie.</li>
-      <li><strong>Tempo:</strong> wolniej i z przerwami. Organizm spala ok. 0,1–0,15‰ na godzinę i nie da się tego przyspieszyć.</li>
-      <li><strong>Woda</strong> między napojami i przed snem.</li>
-      <li><strong>Elektrolity</strong> (np. woda mineralna, napój izotoniczny) mogą pomóc przy odwodnieniu.</li>
-      <li><strong>Sen:</strong> alkohol pogarsza jego jakość, więc daj sobie więcej czasu na odpoczynek.</li>
+      <li>Jedz przed piciem i w trakcie.</li>
+      <li>Pij wolniej, z przerwami.</li>
+      <li>Woda między napojami i przed snem.</li>
+      <li>Elektrolity (woda mineralna, izotonik).</li>
+      <li>Więcej snu.</li>
     </ul>
+    <p class="hint">Całkiem uniknąć kaca się nie da, liczy się głównie ilość alkoholu.</p>
   </details>
 </section>
 
 <style>
-  .count {
-    font-size: 1.125rem;
+  .total {
+    font-size: 1rem;
+    color: var(--muted);
   }
 
-  .count strong {
+  .total strong {
     font-size: 2rem;
     font-weight: 750;
-  }
-
-  .count span {
-    color: var(--muted);
-    font-size: 0.95rem;
-  }
-
-  .minus:disabled {
-    opacity: 0.4;
+    color: var(--text);
   }
 
   .bar {
@@ -88,7 +79,7 @@
     border-radius: 999px;
     background: var(--surface-2);
     overflow: hidden;
-    margin: 14px 0 8px;
+    margin: 10px 0 14px;
   }
 
   .fill {
@@ -96,6 +87,17 @@
     border-radius: inherit;
     background: linear-gradient(90deg, #8fb8d8, #5f9bc7);
     transition: width 0.35s var(--ease);
+  }
+
+  .add {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .minus:disabled {
+    opacity: 0.35;
   }
 
   details {
@@ -133,11 +135,11 @@
   }
 
   .tips {
-    margin: 12px 0 0;
+    margin: 4px 0 8px;
     padding-left: 20px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     font-size: 0.9375rem;
   }
 </style>

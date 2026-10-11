@@ -49,7 +49,7 @@
       {#if s.extrasCost > 0}
         <span class="muted small num">napoje {fmtMoney(s.drinksCost, currency)} · dodatki {fmtMoney(s.extrasCost, currency)}</span>
       {:else if !s.hasPrices && drinks.length}
-        <span class="muted small">Dodaj ceny do napojów, żeby zobaczyć pełny koszt.</span>
+        <span class="muted small">brak cen</span>
       {/if}
     </div>
 
@@ -57,12 +57,11 @@
       <div>
         <dt>Ilość</dt>
         <dd class="num">{fmtUnits(s.units)} <span>× {unit.name}</span></dd>
-        <dd class="sub num">{fmtNum(s.grams, 0)} g czystego alkoholu</dd>
+        <dd class="sub num">{fmtNum(s.grams, 0)} g alkoholu</dd>
       </div>
       <div>
-        <dt>Kalorie z alkoholu</dt>
+        <dt>Kalorie</dt>
         <dd class="num">ok. {fmtNum(s.kcal, 0)} <span>kcal</span></dd>
-        <dd class="sub">bez cukru i dodatków</dd>
       </div>
       <div>
         <dt>Do trzeźwości (0‰)</dt>
@@ -71,7 +70,6 @@
           <dd class="sub num">ok. {fmtWhen(soberLo, now)}–{fmtWhen(soberHi, now)}</dd>
         {:else if soberLo && soberHi}
           <dd class="num">{fmtWhen(soberLo, now)}–{fmtWhen(soberHi, now)}</dd>
-          <dd class="sub">szacunek</dd>
         {:else}
           <dd class="num">—</dd>
         {/if}
@@ -80,7 +78,6 @@
         <div>
           <dt>W godzinach pracy</dt>
           <dd class="num">{fmtHours(s.workHours)}</dd>
-          <dd class="sub">przy stawce {fmtMoney(app.profile?.hourlyRate ?? 0, currency)}/h</dd>
         </div>
       {/if}
     </dl>
@@ -128,7 +125,7 @@
       </form>
     {:else}
       <button class="btn btn-ghost add-extra" onclick={() => (adding = true)}>
-        <Icon name="plus" size={18} /> Dodaj wydatek (taxi, jedzenie…)
+        <Icon name="plus" size={18} /> Wydatek (taxi, jedzenie…)
       </button>
     {/if}
   </section>

@@ -29,9 +29,6 @@
 </script>
 
 <Sheet title="Wynik z alkomatu" {onclose}>
-  <p class="muted small">
-    Wynik z alkomatu zastępuje szacunek od chwili pomiaru. Dalsze obliczenia nadal są tylko przybliżeniem.
-  </p>
   <form
     class="stack"
     onsubmit={(e) => {
@@ -58,7 +55,7 @@
       </div>
     </div>
     {#if unit === 'mgl' && permille !== null}
-      <p class="hint num">≈ {fmtPermille(permille)}‰ (przelicznik jak w przepisach: 0,1 mg/l ≈ 0,2‰)</p>
+      <p class="hint num">≈ {fmtPermille(permille)}‰</p>
     {/if}
     {#if submitted && !ok}<p class="error-text">Podaj wynik, np. 0,25.</p>{/if}
     <button type="submit" class="btn btn-primary btn-lg btn-block">Zapisz pomiar</button>

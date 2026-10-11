@@ -11,7 +11,7 @@
 
 <ul class="list drinks">
   {#each sorted as d (d.id)}
-    <li>
+    <li class="row-item">
       <button class="item" onclick={() => onedit(d)} aria-label="Edytuj: {d.name}, {fmtTime(d.time)}">
         <span class="time num">{fmtTime(d.time)}</span>
         <span class="main">
@@ -21,7 +21,9 @@
           </span>
         </span>
         {#if unit}<span class="eq num">{fmtUnits(toUnits(drinkAlcoholMl(d), unit))}</span>{/if}
-        <Icon name="edit" size={16} />
+      </button>
+      <button class="icon-btn del" onclick={() => app.removeDrink(d.id)} aria-label="Usuń: {d.name}, {fmtTime(d.time)}">
+        <Icon name="trash" size={18} />
       </button>
     </li>
   {/each}
@@ -32,10 +34,22 @@
     border-top: 1px solid var(--border);
   }
 
+  .row-item {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .del {
+    flex: none;
+    color: var(--faint);
+  }
+
   .item {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 12px;
     min-height: 56px;
@@ -44,10 +58,6 @@
     border: none;
     text-align: left;
     color: var(--text);
-  }
-
-  .item :global(svg) {
-    color: var(--faint);
   }
 
   .time {

@@ -20,6 +20,7 @@
     "@capacitor/core": "^7.6.9",
     "@capacitor/filesystem": "^7.1.9",
     "@capacitor/share": "^7.0.4",
+    "@capgo/capacitor-updater": "~7.51",
     "idb": "^8.0.4",
     "svelte": "^5.57.2"
   },

@@ -8,3 +8,4 @@ export * from './streaks';
 export * from './stats';
 export * from './templates';
 export * from './backup';
+export * from './version';

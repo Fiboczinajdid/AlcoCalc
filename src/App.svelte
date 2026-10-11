@@ -6,6 +6,7 @@
   import Settings from './ui/screens/Settings.svelte';
   import Onboarding from './ui/screens/Onboarding.svelte';
   import Icon, { type IconName } from './ui/components/Icon.svelte';
+  import UpdateDialog from './ui/components/UpdateDialog.svelte';
   import { handleBack } from './ui/back';
   import { setupBackButton } from './native';
 
@@ -62,6 +63,10 @@
       </button>
     {/each}
   </nav>
+{/if}
+
+{#if app.update && app.loaded}
+  <UpdateDialog offer={app.update} />
 {/if}
 
 {#if app.toast}

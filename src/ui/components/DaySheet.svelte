@@ -41,7 +41,6 @@
   {:else}
     <div class="sober card">
       <p><strong>Dzień bez alkoholu</strong></p>
-      <p class="muted small">Brak wpisów z tego dnia.</p>
     </div>
   {/if}
 

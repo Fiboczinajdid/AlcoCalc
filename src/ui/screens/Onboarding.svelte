@@ -24,13 +24,11 @@
   <div class="intro">
     <img src="{import.meta.env.BASE_URL}icons/icon-512.png" alt="" width="96" height="96" />
     <h1>AlcoCalc</h1>
-    <p class="muted">
-      Przeliczy każdy napój na jednostkę, którą dobrze znasz, oszacuje promile i pomoże śledzić nawyki.
-    </p>
+    <p class="muted">Przelicznik alkoholu, promile i nawyki.</p>
   </div>
 
   <section class="card">
-    <h2 class="card-title"><Icon name="settings" /> Kilka danych do obliczeń</h2>
+    <h2 class="card-title"><Icon name="settings" /> Twoje dane</h2>
     <form
       class="stack"
       onsubmit={(e) => {
@@ -46,10 +44,7 @@
 
   <div class="note" role="note">
     <Icon name="shield" size={18} />
-    <span>
-      Wszystkie dane zostają tylko w tym telefonie. Bez konta i bez serwera. Limit dla kierowcy (0,2‰), walutę i
-      jednostki zmienisz później w Ustawieniach.
-    </span>
+    <span>Dane zostają tylko w tym telefonie.</span>
   </div>
 </div>
 

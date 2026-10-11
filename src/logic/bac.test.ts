@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   crossesBelowAt,
   estimateDriving,
+  intoxication,
   peakOf,
   simulateBac,
   soberAt,
@@ -127,6 +128,18 @@ describe('szacunek jazdy', () => {
     expect(e.soberSafer!).toBeGreaterThan(e.soberEarliest!);
   });
 
+  it('dużo alkoholu naraz: „teraz” jest niskie, bo alkohol dopiero się wchłania; szczyt po ok. 45 min', () => {
+    const five = drink(0, { count: 5 }); // 98,6 g, w pełni ≈ 1,76‰
+    const at = (min: number) =>
+      estimateDriving({ drinks: [five], readings: [], profile, ate: () => false, now: t0 + min * MIN });
+    expect(at(3).nowHigh).toBeLessThan(0.15);
+    const e = at(3);
+    expect(e.peakLow).toBeGreaterThan(1.6);
+    expect(e.peakHigh).toBeLessThan(1.75);
+    expect(Math.abs((e.peakAt! - t0) / MIN - 45)).toBeLessThanOrEqual(1);
+    expect(at(45).nowLow).toBeCloseTo(e.peakLow, 2);
+  });
+
   it('jedzenie spłaszcza szczyt', () => {
     const base = { drinks: [drink(0, { count: 3 })], readings: [], profile, now: t0 };
     const fasted = estimateDriving({ ...base, ate: () => false });
@@ -144,5 +157,17 @@ describe('szacunek jazdy', () => {
     });
     expect(e.fast).toBeNull();
     expect(e.exceededLimit).toBe(false);
+  });
+});
+
+describe('opis stanu', () => {
+  it('progi i forma zależna od płci', () => {
+    expect(intoxication(0.1, 'm').label).toBe('Trzeźwo');
+    expect(intoxication(0.3, 'm').label).toBe('Lekko wstawiony');
+    expect(intoxication(0.3, 'f').label).toBe('Lekko wstawiona');
+    expect(intoxication(0.7, 'm').level).toBe(2);
+    expect(intoxication(1.5, 'm').label).toBe('Pijany');
+    expect(intoxication(2.4, 'f').label).toBe('Bardzo pijana');
+    expect(intoxication(3.2, 'm').level).toBe(5);
   });
 });

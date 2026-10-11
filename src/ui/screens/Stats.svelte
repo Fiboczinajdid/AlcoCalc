@@ -64,12 +64,11 @@
         caption={`Ilość alkoholu w ${period === 'week' ? 'kolejnych tygodniach' : 'kolejnych miesiącach'}`}
       />
       <p class="small muted">
-        {#if measure === 'unit' && unit}Wartości w jednostce: {unit.name}.{:else}Gramy czystego alkoholu.{/if}
         Średnio <strong class="num">{fmtAmount(avg)}{measure === 'grams' ? ' g' : ''}</strong>
-        {period === 'week' ? 'na tydzień' : 'na miesiąc'}.
+        {period === 'week' ? 'na tydzień' : 'na miesiąc'}
       </p>
     {:else}
-      <p class="muted">Statystyki pojawią się po dodaniu pierwszych napojów.</p>
+      <p class="muted">Brak danych.</p>
     {/if}
   </section>
 
@@ -96,7 +95,7 @@
   <section class="card" aria-labelledby="cost-title">
     <h2 class="card-title" id="cost-title"><Icon name="wallet" /> Koszty miesięczne</h2>
     <div class="tile wide">
-      <span class="muted small">Ten miesiąc (napoje i dodatki)</span>
+      <span class="muted small">Ten miesiąc</span>
       <span class="tile-val num">{fmtMoney(thisMonth.cost, currency)}</span>
     </div>
     <BarChart

@@ -27,7 +27,6 @@
       {/each}
     {/each}
   </div>
-  <p class="hint">Im ciemniej, tym więcej alkoholu w danej godzinie. Noc po północy liczy się do dnia, w którym zaczął się wieczór.</p>
 {:else}
   <p class="muted">Brak danych.</p>
 {/if}

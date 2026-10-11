@@ -1,4 +1,4 @@
-import type { DayLog, Drink, Profile, Reading, Unit } from './types';
+import type { DayLog, Drink, Preset, Profile, Reading, Unit } from './types';
 
 export const BACKUP_FORMAT = 'alcocalc-backup';
 export const BACKUP_VERSION = 1;
@@ -9,6 +9,7 @@ export interface Backup {
   exportedAt: string;
   profile: Profile | null;
   units: Unit[];
+  presets: Preset[];
   drinks: Drink[];
   days: DayLog[];
   readings: Reading[];
@@ -50,12 +51,17 @@ export function parseBackup(raw: unknown): Backup {
     .filter((d) => d && isStr(d.date))
     .map((d) => ({
       date: d.date,
-      waterGlasses: isNum(d.waterGlasses) ? d.waterGlasses : 0,
+      // Starsze kopie liczyły wodę w szklankach po 250 ml.
+      waterMl: isNum(d.waterMl) ? d.waterMl : isNum(d.waterGlasses) ? d.waterGlasses * 250 : 0,
       ate: d.ate === true,
       extras: arr(d.extras)
         .filter((e) => e && isStr(e.id) && isNum(e.amount))
         .map((e) => ({ id: e.id, label: isStr(e.label) ? e.label : 'Dodatek', amount: e.amount })),
     }));
+
+  const presets: Preset[] = arr(o.presets)
+    .filter((x) => x && isStr(x.id) && isStr(x.name) && isNum(x.volumeMl) && isNum(x.abv))
+    .map((x) => ({ id: x.id, name: x.name, volumeMl: x.volumeMl, abv: x.abv, price: numOrNull(x.price) }));
 
   const readings: Reading[] = arr(o.readings)
     .filter((r) => r && isStr(r.id) && isNum(r.time) && isNum(r.permille))
@@ -85,6 +91,7 @@ export function parseBackup(raw: unknown): Backup {
     exportedAt: isStr(o.exportedAt) ? o.exportedAt : '',
     profile,
     units,
+    presets,
     drinks,
     days,
     readings,

@@ -6,6 +6,7 @@ import {
   type Backup,
   type DayLog,
   type Drink,
+  type Preset,
   type Profile,
   type Reading,
   type Unit,
@@ -24,6 +25,8 @@ export function uid(): string {
 /** IndexedDB nie przyjmuje proxy Svelte – zapisujemy zwykłe obiekty. */
 const plain = <T>(v: T): T => $state.snapshot(v) as T;
 
+import type { UpdateOffer } from '../updates';
+
 export interface Toast {
   id: number;
   message: string;
@@ -36,12 +39,15 @@ class AppState {
   loadError = $state<string | null>(null);
   profile = $state<Profile | null>(null);
   units = $state<Unit[]>([]);
+  presets = $state<Preset[]>([]);
   /** Posortowane rosnąco po czasie. */
   drinks = $state<Drink[]>([]);
   days = $state<Record<string, DayLog>>({});
   readings = $state<Reading[]>([]);
   now = $state(Date.now());
   toast = $state<Toast | null>(null);
+  /** Dostępna aktualizacja (okno na środku ekranu). */
+  update = $state<UpdateOffer | null>(null);
 
   activeUnit = $derived<Unit | null>(
     this.units.find((u) => u.id === this.profile?.activeUnitId) ?? this.units[0] ?? null,
@@ -61,6 +67,7 @@ class AppState {
       const s = await db.loadAll();
       this.profile = s.profile;
       this.units = s.units;
+      this.presets = s.presets;
       this.drinks = s.drinks.sort((a, b) => a.time - b.time);
       this.days = Object.fromEntries(s.days.map((d) => [d.date, d]));
       this.readings = s.readings;
@@ -112,6 +119,21 @@ class AppState {
     if (this.profile?.activeUnitId === id) await this.setActiveUnit(this.units[0].id);
   }
 
+  // ---------- moje napoje (szybki wybór) ----------
+
+  async savePreset(p: Omit<Preset, 'id'> & { id?: string }) {
+    const preset: Preset = { ...plain(p), id: p.id ?? uid() };
+    await db.savePreset(preset);
+    const i = this.presets.findIndex((x) => x.id === preset.id);
+    if (i >= 0) this.presets[i] = preset;
+    else this.presets.push(preset);
+  }
+
+  async removePreset(id: string) {
+    await db.deletePreset(id);
+    this.presets = this.presets.filter((p) => p.id !== id);
+  }
+
   // ---------- napoje ----------
 
   drinksOn(key: string): Drink[] {
@@ -160,7 +182,7 @@ class AppState {
   // ---------- dni (woda, jedzenie, dodatki) ----------
 
   day(key: string): DayLog {
-    return this.days[key] ?? { date: key, waterGlasses: 0, ate: false, extras: [] };
+    return this.days[key] ?? { date: key, waterMl: 0, ate: false, extras: [] };
   }
 
   async updateDay(key: string, patch: Partial<Omit<DayLog, 'date'>>) {
@@ -193,6 +215,7 @@ class AppState {
       exportedAt: new Date().toISOString(),
       profile: plain(this.profile),
       units: plain(this.units),
+      presets: plain(this.presets),
       drinks: plain(this.drinks),
       days: Object.values(plain(this.days)),
       readings: plain(this.readings),
@@ -203,6 +226,7 @@ class AppState {
     await db.replaceAll(b);
     this.profile = b.profile;
     this.units = b.units;
+    this.presets = b.presets;
     this.drinks = [...b.drinks].sort((a, c) => a.time - c.time);
     this.days = Object.fromEntries(b.days.map((d) => [d.date, d]));
     this.readings = b.readings;
@@ -212,6 +236,7 @@ class AppState {
     await db.clearAll();
     this.profile = null;
     this.units = [];
+    this.presets = [];
     this.drinks = [];
     this.days = {};
     this.readings = [];

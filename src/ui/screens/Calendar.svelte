@@ -79,11 +79,7 @@
       {/if}
     </div>
     {#if streak.current === 0 && streak.previous}
-      <p class="small muted msg">
-        Poprzednia seria trwała {days(streak.previous)}. To po prostu informacja, a każdy dzień liczy się osobno.
-      </p>
-    {:else if streak.next && streak.current > 0}
-      <p class="small muted msg">Do progu {days(streak.next)} zostało: {days(streak.next - streak.current)}.</p>
+      <p class="small muted msg">Poprzednia seria: {days(streak.previous)}</p>
     {/if}
   </section>
 
@@ -149,7 +145,6 @@
         </li>
       {/each}
     </ul>
-    <p class="hint">Progi za kolejne dni bez alkoholu z rzędu. Liczy się najdłuższa seria.</p>
   </section>
 </div>
 

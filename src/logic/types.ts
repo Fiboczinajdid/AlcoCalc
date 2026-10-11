@@ -37,6 +37,15 @@ export interface Drink {
   price: number | null;
 }
 
+/** Zapisany przez użytkownika napój do szybkiego dodawania. */
+export interface Preset {
+  id: string;
+  name: string;
+  volumeMl: number;
+  abv: number;
+  price: number | null;
+}
+
 export interface Extra {
   id: string;
   label: string;
@@ -47,7 +56,8 @@ export interface Extra {
 export interface DayLog {
   /** Klucz dnia RRRR-MM-DD. */
   date: string;
-  waterGlasses: number;
+  /** Wypita woda w ml. */
+  waterMl: number;
   ate: boolean;
   extras: Extra[];
 }

@@ -1,26 +1,30 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { DayLog, Drink, Profile, Reading, Unit } from '../logic/types';
+import type { DayLog, Drink, Preset, Profile, Reading, Unit } from '../logic/types';
 
 interface AlcoDB extends DBSchema {
   kv: { key: string; value: unknown };
   units: { key: string; value: Unit };
+  presets: { key: string; value: Preset };
   drinks: { key: string; value: Drink; indexes: { time: number } };
   days: { key: string; value: DayLog };
   readings: { key: string; value: Reading };
 }
 
-const STORES = ['kv', 'units', 'drinks', 'days', 'readings'] as const;
+const STORES = ['kv', 'units', 'presets', 'drinks', 'days', 'readings'] as const;
 
 let dbPromise: Promise<IDBPDatabase<AlcoDB>> | null = null;
 
 function db() {
-  dbPromise ??= openDB<AlcoDB>('alcocalc', 1, {
-    upgrade(d) {
-      d.createObjectStore('kv');
-      d.createObjectStore('units', { keyPath: 'id' });
-      d.createObjectStore('drinks', { keyPath: 'id' }).createIndex('time', 'time');
-      d.createObjectStore('days', { keyPath: 'date' });
-      d.createObjectStore('readings', { keyPath: 'id' });
+  dbPromise ??= openDB<AlcoDB>('alcocalc', 2, {
+    upgrade(d, oldVersion) {
+      if (oldVersion < 1) {
+        d.createObjectStore('kv');
+        d.createObjectStore('units', { keyPath: 'id' });
+        d.createObjectStore('drinks', { keyPath: 'id' }).createIndex('time', 'time');
+        d.createObjectStore('days', { keyPath: 'date' });
+        d.createObjectStore('readings', { keyPath: 'id' });
+      }
+      if (oldVersion < 2) d.createObjectStore('presets', { keyPath: 'id' });
     },
   });
   return dbPromise;
@@ -29,6 +33,7 @@ function db() {
 export interface Snapshot {
   profile: Profile | null;
   units: Unit[];
+  presets: Preset[];
   drinks: Drink[];
   days: DayLog[];
   readings: Reading[];
@@ -36,14 +41,20 @@ export interface Snapshot {
 
 export async function loadAll(): Promise<Snapshot> {
   const d = await db();
-  const [profile, units, drinks, days, readings] = await Promise.all([
+  const [profile, units, presets, drinks, days, readings] = await Promise.all([
     d.get('kv', 'profile') as Promise<Profile | undefined>,
     d.getAll('units'),
+    d.getAll('presets'),
     d.getAllFromIndex('drinks', 'time'),
     d.getAll('days'),
     d.getAll('readings'),
   ]);
-  return { profile: profile ?? null, units, drinks, days, readings };
+  // Wersja 1 zapisywała wodę w szklankach po 250 ml.
+  const legacy = (day: DayLog & { waterGlasses?: number }): DayLog => {
+    const { waterGlasses, ...rest } = day;
+    return { ...rest, waterMl: day.waterMl ?? (waterGlasses ?? 0) * 250 };
+  };
+  return { profile: profile ?? null, units, presets, drinks, days: days.map(legacy), readings };
 }
 
 export async function saveProfile(p: Profile) {
@@ -56,6 +67,14 @@ export async function saveUnit(u: Unit) {
 
 export async function deleteUnit(id: string) {
   await (await db()).delete('units', id);
+}
+
+export async function savePreset(p: Preset) {
+  await (await db()).put('presets', p);
+}
+
+export async function deletePreset(id: string) {
+  await (await db()).delete('presets', id);
 }
 
 export async function saveDrink(dr: Drink) {
@@ -91,6 +110,7 @@ export async function replaceAll(s: Snapshot) {
   const ops: Promise<unknown>[] = STORES.map((st) => tx.objectStore(st).clear());
   if (s.profile) ops.push(tx.objectStore('kv').put(s.profile, 'profile'));
   for (const u of s.units) ops.push(tx.objectStore('units').put(u));
+  for (const pr of s.presets) ops.push(tx.objectStore('presets').put(pr));
   for (const dr of s.drinks) ops.push(tx.objectStore('drinks').put(dr));
   for (const day of s.days) ops.push(tx.objectStore('days').put(day));
   for (const r of s.readings) ops.push(tx.objectStore('readings').put(r));

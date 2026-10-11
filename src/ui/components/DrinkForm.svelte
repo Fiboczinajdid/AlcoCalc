@@ -2,13 +2,13 @@
   import { untrack } from 'svelte';
   import { app } from '../../state/app.svelte';
   import {
-    DRINK_TEMPLATES,
     dayKey as toDayKey,
     mlToGrams,
     pureAlcoholMl,
     timeOnDay,
     toUnits,
     type Drink,
+    type Preset,
   } from '../../logic';
   import { fmtAbv, fmtMoney, fmtNum, fmtTime, fmtUnits, fmtVolume, parseNum } from '../format';
   import Sheet from './Sheet.svelte';
@@ -33,6 +33,8 @@
   let price = $state(init.drink?.price != null ? String(init.drink.price).replace('.', ',') : '');
   let picked = $state<string | null>(null);
   let submitted = $state(false);
+  let saveAsPreset = $state(false);
+  let managing = $state(false);
 
   const vol = $derived(parseNum(volume));
   const pct = $derived(parseNum(abv));
@@ -54,16 +56,22 @@
   });
   const inFuture = $derived(timestamp !== null && timestamp > Date.now() + 5 * 60_000);
 
-  const choices = $derived([
-    ...app.units.map((u) => ({ key: 'u-' + u.id, name: u.name, volumeMl: u.volumeMl, abv: u.abv })),
-    ...DRINK_TEMPLATES.map((t, i) => ({ key: 't-' + i, ...t })),
-  ]);
+  const presets = $derived([...app.presets].sort((a, b) => a.name.localeCompare(b.name, 'pl')));
 
-  function pick(c: { key: string; name: string; volumeMl: number; abv: number }) {
-    picked = c.key;
-    name = c.name;
-    volume = String(c.volumeMl);
-    abv = String(c.abv).replace('.', ',');
+  function pick(p: Preset) {
+    picked = p.id;
+    name = p.name;
+    volume = String(p.volumeMl);
+    abv = String(p.abv).replace('.', ',');
+    price = p.price != null ? String(p.price).replace('.', ',') : '';
+  }
+
+  async function removePreset(p: Preset) {
+    const copy = $state.snapshot(p) as Preset;
+    await app.removePreset(p.id);
+    if (picked === p.id) picked = null;
+    if (!app.presets.length) managing = false;
+    app.showToast(`Usunięto z listy: ${copy.name}`, 'Cofnij', () => app.savePreset(copy));
   }
 
   async function save() {
@@ -79,6 +87,9 @@
     };
     if (drink) await app.updateDrink({ ...data, id: drink.id });
     else await app.addDrink(data);
+    if (saveAsPreset && !picked) {
+      await app.savePreset({ name: data.name, volumeMl: data.volumeMl, abv: data.abv, price: data.price });
+    }
     onclose();
   }
 
@@ -90,14 +101,28 @@
 </script>
 
 <Sheet title={editing ? 'Edytuj napój' : 'Dodaj napój'} {onclose}>
-  {#if !editing}
-    <section aria-label="Szybki wybór">
+  {#if !editing && presets.length}
+    <section aria-labelledby="df-presets" class="stack">
+      <div class="spread">
+        <h3 id="df-presets" class="presets-title">Moje napoje</h3>
+        <button type="button" class="btn btn-ghost small manage" onclick={() => (managing = !managing)}>
+          {managing ? 'Gotowe' : 'Usuń z listy'}
+        </button>
+      </div>
       <div class="templates">
-        {#each choices as c (c.key)}
-          <button type="button" class="tpl" aria-pressed={picked === c.key} onclick={() => pick(c)}>
-            <span class="tpl-name">{c.name}</span>
-            <span class="tpl-meta num">{fmtVolume(c.volumeMl)} · {fmtAbv(c.abv)}</span>
-          </button>
+        {#each presets as p (p.id)}
+          {#if managing}
+            <button type="button" class="tpl removing" onclick={() => removePreset(p)} aria-label="Usuń z listy: {p.name}">
+              <span class="tpl-name">{p.name}</span>
+              <span class="tpl-meta num">{fmtVolume(p.volumeMl)} · {fmtAbv(p.abv)}</span>
+              <span class="tpl-x"><Icon name="close" size={16} /></span>
+            </button>
+          {:else}
+            <button type="button" class="tpl" aria-pressed={picked === p.id} onclick={() => pick(p)}>
+              <span class="tpl-name">{p.name}</span>
+              <span class="tpl-meta num">{fmtVolume(p.volumeMl)} · {fmtAbv(p.abv)}</span>
+            </button>
+          {/if}
         {/each}
       </div>
     </section>
@@ -159,7 +184,7 @@
         </div>
       </div>
     </div>
-    {#if inFuture}<span class="hint">Ta godzina jest w przyszłości. Wpis zostanie zapisany z tą godziną.</span>{/if}
+    {#if inFuture}<span class="hint">Godzina w przyszłości.</span>{/if}
     {#if submitted && !priceOk}<span class="error-text">Cena musi być liczbą.</span>{/if}
 
     {#if alcoholMl > 0 && unit}
@@ -170,6 +195,14 @@
           {#if cost && cost > 0}· razem {fmtMoney(cost * count, app.profile?.currency ?? 'PLN')}{/if}
         </div>
       </div>
+    {/if}
+
+    {#if !editing && !picked}
+      <label class="switch">
+        <input type="checkbox" bind:checked={saveAsPreset} />
+        <span class="track"></span>
+        <span>Zapisz w „Moich napojach”</span>
+      </label>
     {/if}
 
     <div class="footer">
@@ -206,6 +239,36 @@
     background: var(--surface);
     text-align: left;
     transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+
+  .presets-title {
+    font-size: 1rem;
+  }
+
+  .manage {
+    min-height: 40px;
+    color: var(--amber-text);
+  }
+
+  .tpl {
+    position: relative;
+  }
+
+  .tpl.removing {
+    border-style: dashed;
+    padding-right: 34px;
+  }
+
+  .tpl-x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--surface-3);
   }
 
   .tpl:active {

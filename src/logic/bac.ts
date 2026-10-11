@@ -216,3 +216,20 @@ export function estimateDriving(input: EstimateInput): DriveEstimate {
 export function mglToPermille(mgl: number): number {
   return mgl * MGL_TO_PERMILLE;
 }
+
+export interface Intoxication {
+  /** 0 = trzeźwo … 5 = groźnie. */
+  level: number;
+  label: string;
+}
+
+/** Potoczny opis stanu dla danego stężenia (‰). */
+export function intoxication(permille: number, sex: Profile['sex']): Intoxication {
+  const f = sex === 'f';
+  if (permille < 0.2) return { level: 0, label: 'Trzeźwo' };
+  if (permille < 0.5) return { level: 1, label: f ? 'Lekko wstawiona' : 'Lekko wstawiony' };
+  if (permille < 1) return { level: 2, label: f ? 'Wstawiona' : 'Wstawiony' };
+  if (permille < 2) return { level: 3, label: f ? 'Pijana' : 'Pijany' };
+  if (permille < 3) return { level: 4, label: f ? 'Bardzo pijana' : 'Bardzo pijany' };
+  return { level: 5, label: 'Groźnie – ryzyko zatrucia' };
+}

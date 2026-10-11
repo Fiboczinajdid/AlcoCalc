@@ -34,7 +34,6 @@
 </script>
 
 <Sheet title={unit ? 'Edytuj jednostkę' : 'Nowa jednostka'} {onclose}>
-  <p class="muted small">Jednostka to Twoja „waluta” alkoholu, np. piwo, które dobrze znasz. W niej pokazuje się licznik.</p>
   <form
     class="stack"
     onsubmit={(e) => {
@@ -64,7 +63,7 @@
       </div>
     </div>
     {#if ok}
-      <p class="hint num">= {fmtNum(ml, 1)} ml czystego alkoholu ({fmtNum(mlToGrams(ml), 1)} g)</p>
+      <p class="hint num">{fmtNum(ml, 1)} ml alkoholu ({fmtNum(mlToGrams(ml), 1)} g)</p>
     {:else if submitted}
       <p class="error-text">Uzupełnij nazwę, objętość (ml) i moc (%).</p>
     {/if}

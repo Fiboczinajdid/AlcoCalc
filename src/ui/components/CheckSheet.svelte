@@ -64,7 +64,6 @@
 </script>
 
 <Sheet title="Sprawdź przed zakupem" {onclose}>
-  <p class="muted small">Tylko przeliczenie. Nic nie zapisuje się do wieczoru, dopóki sam/sama tego nie zrobisz.</p>
 
   <div class="stack">
     <div class="field">
@@ -145,7 +144,7 @@
             </div>
             <div class="cmp-val num">
               <strong>{fmtUnits(toUnits(ml, unit))}</strong>
-              {#if pu !== null}<span class="small muted">{fmtMoney(pu, currency)}/jedn.</span>{/if}
+              {#if pu !== null}<span class="small muted">{fmtMoney(pu, currency)} / {unit.name}</span>{/if}
             </div>
             <button class="icon-btn" aria-label="Usuń {c.name} z porównania" onclick={() => compare.splice(compare.findIndex((x) => x.id === c.id), 1)}>
               <Icon name="close" size={18} />
@@ -153,7 +152,6 @@
           </li>
         {/each}
       </ul>
-      <p class="hint">Wartości w jednostce: {unit.name}. „/jedn.” to cena za jedną taką jednostkę alkoholu.</p>
     </section>
   {/if}
 </Sheet>
