@@ -4,6 +4,8 @@ Aplikacja PWA do świadomego picia. Przelicza alkohol na Twoje własne jednostki
 
 Wszystkie dane zostają w telefonie (IndexedDB). Nie ma konta ani serwera.
 
+**Otwórz aplikację: https://fiboczinajdid.github.io/AlcoCalc/**
+
 > **Ważne:** szacunki promili to wyłącznie przybliżenie. Ludzie spalają alkohol nawet dwukrotnie różnie szybko. Przed jazdą zawsze sprawdź się alkomatem.
 
 ## Technologia
@@ -56,47 +58,6 @@ npm run icons      # ponowne wygenerowanie ikon
 | Alkomat | wynik zastępuje szacunek od chwili pomiaru (mg/l × 2 = ‰) |
 | Woda | szklanka 250 ml na każdy napój + jedna przed snem |
 | Dni bez alkoholu | każdy dzień bez wpisu od pierwszego uruchomienia; nowy dzień zaczyna się o 6:00 (do zmiany w ustawieniach) |
-
----
-
-## Publikacja za darmo
-
-### Opcja A: GitHub Pages (automatycznie przez GitHub Actions)
-
-Projekt zawiera gotowy workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Przy każdym wypchnięciu zmian uruchamia testy, buduje aplikację i publikuje ją.
-
-1. Załóż konto na [github.com](https://github.com), jeśli go nie masz.
-2. Utwórz nowe repozytorium (przycisk **New**), np. o nazwie `AlcoCalc`. Może być publiczne. Nie dodawaj README.
-3. W folderze projektu uruchom w terminalu (podmień `TWOJ_LOGIN`):
-   ```bash
-   git init
-   git add .
-   git commit -m "AlcoCalc"
-   git branch -M main
-   git remote add origin https://github.com/TWOJ_LOGIN/AlcoCalc.git
-   git push -u origin main
-   ```
-4. Na GitHubie wejdź w repozytorium → **Settings** → **Pages**. W polu **Source** wybierz **GitHub Actions**.
-5. Wejdź w zakładkę **Actions** i poczekaj 1–2 minuty, aż zadanie „Deploy to GitHub Pages” zakończy się zielonym znaczkiem. Jeśli uruchomiło się przed krokiem 4 i nie przeszło, kliknij **Re-run all jobs**.
-6. Aplikacja będzie pod adresem `https://TWOJ_LOGIN.github.io/AlcoCalc/`.
-
-Kolejne zmiany publikujesz przez `git add . && git commit -m "opis" && git push`.
-
-### Opcja B: Netlify
-
-Projekt zawiera [`netlify.toml`](netlify.toml), więc Netlify sam wie, jak go zbudować.
-
-**Przez GitHuba (zalecane, aktualizuje się samo):**
-1. Wypchnij projekt na GitHuba (kroki 1–3 z opcji A).
-2. Na [app.netlify.com](https://app.netlify.com) wybierz **Add new site → Import an existing project → GitHub** i wskaż repozytorium.
-3. Ustawienia zostaną wczytane z `netlify.toml` (build: `npm ci && npm run build`, publish: `dist`). Kliknij **Deploy**.
-4. Po ok. minucie dostaniesz adres typu `https://nazwa.netlify.app`. Nazwę zmienisz w **Site configuration → Change site name**.
-
-**Bez GitHuba (ręcznie):**
-1. Uruchom `npm run build`.
-2. Na [app.netlify.com/drop](https://app.netlify.com/drop) przeciągnij folder `dist`.
-
-Oba sposoby dają HTTPS, który jest wymagany do instalacji PWA.
 
 ---
 
