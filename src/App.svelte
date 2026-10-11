@@ -6,6 +6,8 @@
   import Settings from './ui/screens/Settings.svelte';
   import Onboarding from './ui/screens/Onboarding.svelte';
   import Icon, { type IconName } from './ui/components/Icon.svelte';
+  import { handleBack } from './ui/back';
+  import { setupBackButton } from './native';
 
   type Tab = 'today' | 'calendar' | 'stats' | 'settings';
   const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -21,6 +23,16 @@
     tab = t;
     window.scrollTo({ top: 0 });
   }
+
+  // Android: „Wstecz” zamyka arkusz, potem wraca do „Dziś”, a dopiero na „Dziś” zamyka aplikację.
+  setupBackButton(() => {
+    if (handleBack()) return true;
+    if (app.profile && tab !== 'today') {
+      go('today');
+      return true;
+    }
+    return false;
+  });
 </script>
 
 {#if !app.loaded}

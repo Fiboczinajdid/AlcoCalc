@@ -3,3 +3,5 @@
 /// <reference types="vite-plugin-pwa/client" />
 
 declare const __APP_VERSION__: string;
+/** true w wersji APK (Capacitor). */
+declare const __NATIVE__: boolean;

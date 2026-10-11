@@ -10,13 +10,21 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "icons": "node scripts/gen-icons.mjs"
+    "icons": "node scripts/gen-icons.mjs",
+    "icons:android": "node scripts/gen-android-assets.mjs",
+    "build:android": "vite build --mode native && cap sync android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.6.9",
+    "@capacitor/app": "^7.1.2",
+    "@capacitor/core": "^7.6.9",
+    "@capacitor/filesystem": "^7.1.9",
+    "@capacitor/share": "^7.0.4",
     "idb": "^8.0.4",
     "svelte": "^5.57.2"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.6.9",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tsconfig/svelte": "^5.0.8",
     "sharp": "^0.35.5",

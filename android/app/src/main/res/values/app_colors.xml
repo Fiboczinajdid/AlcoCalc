@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Takie samo jak --bg w src/app.css (tryb jasny). -->
+    <color name="app_background">#FAF8F4</color>
+    <bool name="light_system_bars">true</bool>
+</resources>

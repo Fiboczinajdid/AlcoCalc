@@ -5,6 +5,7 @@
   import ProfileFields, { draftToProfile, type ProfileDraft } from '../components/ProfileFields.svelte';
   import UnitSheet from '../components/UnitSheet.svelte';
   import Icon from '../components/Icon.svelte';
+  import { isNative, shareTextFile } from '../../native';
 
   const p = app.profile!;
   let draft = $state<ProfileDraft>({
@@ -51,7 +52,17 @@
 
   async function exportData() {
     const name = `alcocalc-kopia-${app.todayKey}.json`;
-    const file = new File([JSON.stringify(app.exportBackup(), null, 2)], name, { type: 'application/json' });
+    const json = JSON.stringify(app.exportBackup(), null, 2);
+    if (isNative) {
+      try {
+        await shareTextFile(name, json);
+      } catch (e) {
+        // Zamknięcie okna „Udostępnij” bez wyboru to nie błąd.
+        if (!/cancel/i.test(String(e))) app.showToast('Nie udało się zapisać kopii');
+      }
+      return;
+    }
+    const file = new File([json], name, { type: 'application/json' });
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
     if (ios && navigator.canShare?.({ files: [file] })) {
       try {

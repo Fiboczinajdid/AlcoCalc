@@ -4,3 +4,9 @@ dev-dist
 *.log
 .DS_Store
 .claude
+
+# Klucz podpisu APK – nigdy do repozytorium
+keystore/
+*.p12
+*.jks
+*.keystore

@@ -1,10 +1,11 @@
 # AlcoCalc
 
-Aplikacja PWA do świadomego picia. Przelicza alkohol na Twoje własne jednostki (np. „moje piwo 5% 0,5 l”), szacuje promile i czas do zejścia poniżej limitu, liczy wodę i koszty wieczoru oraz pokazuje kalendarz, serie dni bez alkoholu i statystyki.
+Aplikacja do świadomego picia (Android APK i PWA). Przelicza alkohol na Twoje własne jednostki (np. „moje piwo 5% 0,5 l”), szacuje promile i czas do zejścia poniżej limitu, liczy wodę i koszty wieczoru oraz pokazuje kalendarz, serie dni bez alkoholu i statystyki.
 
 Wszystkie dane zostają w telefonie (IndexedDB). Nie ma konta ani serwera.
 
-**Otwórz aplikację: https://fiboczinajdid.github.io/AlcoCalc/**
+- **Android (APK):** https://github.com/Fiboczinajdid/AlcoCalc/releases/latest/download/AlcoCalc.apk
+- **Wersja w przeglądarce (także iPhone):** https://fiboczinajdid.github.io/AlcoCalc/
 
 > **Ważne:** szacunki promili to wyłącznie przybliżenie. Ludzie spalają alkohol nawet dwukrotnie różnie szybko. Przed jazdą zawsze sprawdź się alkomatem.
 
@@ -15,6 +16,7 @@ Wszystkie dane zostają w telefonie (IndexedDB). Nie ma konta ani serwera.
 - Zapis lokalny przez [`idb`](https://github.com/jakearchibald/idb) (~1 kB).
 - PWA przez `vite-plugin-pwa` (manifest i service worker Workbox, pełne działanie offline).
 - Wykresy rysowane własnym kodem SVG, bez bibliotek.
+- APK na Androida przez [Capacitor](https://capacitorjs.com) 7. Budowa i podpis odbywają się w GitHub Actions ([`.github/workflows/android.yml`](.github/workflows/android.yml)), a gotowy plik trafia do Releases.
 
 ## Struktura
 
@@ -29,7 +31,8 @@ src/
   state/            stan aplikacji (runy Svelte), most UI ↔ logika ↔ zapis
   ui/screens/       Dziś, Kalendarz, Statystyki, Ustawienia, ekran powitalny
   ui/components/    arkusze, karty, wykresy
-scripts/            generator ikon (wektorowa wersja kufla → PNG)
+scripts/            generatory ikon (wektorowa wersja kufla → PNG dla PWA i Androida)
+android/            projekt Androida (Capacitor)
 public/icons/       ikony 192, 512, maskable, apple-touch, favicon
 ```
 
@@ -42,7 +45,9 @@ npm test           # testy jednostkowe (Vitest)
 npm run check      # sprawdzenie typów i dostępności
 npm run build      # wersja produkcyjna do katalogu dist/
 npm run preview    # podgląd wersji produkcyjnej (z service workerem)
-npm run icons      # ponowne wygenerowanie ikon
+npm run icons      # ponowne wygenerowanie ikon PWA
+npm run icons:android  # ikony i ekran startowy Androida
+npm run build:android  # wersja do APK + kopiowanie do projektu Androida
 ```
 
 ## Model obliczeń
@@ -63,18 +68,26 @@ npm run icons      # ponowne wygenerowanie ikon
 
 ## Instalacja na telefonie
 
-### Android (Chrome)
-1. Otwórz adres aplikacji w **Chrome**.
+### Android – plik APK (zalecane)
+1. Na telefonie otwórz https://github.com/Fiboczinajdid/AlcoCalc/releases/latest/download/AlcoCalc.apk. Pobierze się plik `AlcoCalc.apk`.
+2. Otwórz pobrany plik (z powiadomienia albo z aplikacji **Pliki → Pobrane**).
+3. Jeśli telefon zapyta, zezwól na instalację z tego źródła (**Ustawienia → Zezwalaj z tego źródła**). Na Xiaomi/Redmi może też pojawić się skanowanie zabezpieczeń – wybierz **Kontynuuj instalację**.
+4. Tapnij **Zainstaluj**. Ikona AlcoCalc pojawi się na pulpicie.
+
+Nową wersję instalujesz tak samo – z tego samego linku. Instaluje się jako aktualizacja, dane zostają.
+
+### Android – z przeglądarki Chrome (bez APK)
+1. Otwórz https://fiboczinajdid.github.io/AlcoCalc/ w **Chrome**.
 2. Poczekaj, aż strona się załaduje. Może pojawić się pasek „Zainstaluj aplikację”, wystarczy go tapnąć.
 3. Jeśli paska nie ma: menu **⋮** (prawy górny róg) → **Zainstaluj aplikację** (albo **Dodaj do ekranu głównego**) → **Zainstaluj**.
 4. Ikona kufla pojawi się na ekranie głównym. Aplikacja otwiera się na pełnym ekranie i działa offline.
 
 ### iPhone (Safari)
-1. Otwórz adres aplikacji w **Safari**. Inne przeglądarki na iOS mogą nie mieć tej opcji.
+1. Otwórz https://fiboczinajdid.github.io/AlcoCalc/ w **Safari**. Inne przeglądarki na iOS mogą nie mieć tej opcji.
 2. Tapnij przycisk **Udostępnij** (kwadrat ze strzałką w górę na dolnym pasku).
 3. Przewiń w dół i wybierz **Do ekranu początkowego**.
 4. Zostaw nazwę „AlcoCalc” i tapnij **Dodaj**.
 5. Uruchamiaj aplikację z ikony na ekranie początkowym, a nie z Safari, bo dane są przypisane do zainstalowanej aplikacji.
 
 ### Kopia danych
-Usunięcie aplikacji kasuje jej dane. Co jakiś czas wejdź w **Ustawienia → Eksportuj kopię (JSON)** i zachowaj plik (np. na Dysku Google lub w iCloud). Dane przywrócisz przez **Importuj kopię**.
+Usunięcie aplikacji kasuje jej dane. Wersja APK i wersja z przeglądarki mają osobne dane – kopię możesz przenieść między nimi eksportem i importem. Co jakiś czas wejdź w **Ustawienia → Eksportuj kopię (JSON)** i zachowaj plik (np. na Dysku Google lub w iCloud). Dane przywrócisz przez **Importuj kopię**.

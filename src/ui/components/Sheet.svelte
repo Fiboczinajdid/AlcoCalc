@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
+  import { pushBack } from '../back';
 
   let {
     title,
@@ -17,7 +18,9 @@
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     panel.focus();
+    const offBack = pushBack(() => onclose());
     return () => {
+      offBack();
       document.body.style.overflow = overflow;
       prev?.focus?.();
     };
